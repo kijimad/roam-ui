@@ -14,10 +14,23 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout roam
+        uses: actions/checkout@v4
+        with:
+          repository: kijimaD/roam
+          path: roam
+
+      - name: Build org-roam.db
+        working-directory: roam
+        run: |
+          docker build --target build -t roam-build .
+          docker run --detach --name roam-build-container roam-build
+          docker cp roam-build-container:/roam/org-roam.db .
+
       - name: Generate org-roam-ui page
         uses: ikoamu/org-roam-ui-hosting@main
         with:
           deploy-to-pages: true
-          org-roam-directory: pages
+          org-roam-directory: roam
           org-roam-db-filename: org-roam.db
           site-title: Insomnia
